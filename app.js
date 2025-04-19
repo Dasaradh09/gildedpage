@@ -14,11 +14,19 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://kind-moss-06ab0cf0f.6.azurestaticapps.net'
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://kind-moss-06ab0cf0f.6.azurestaticapps.net'
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
