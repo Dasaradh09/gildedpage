@@ -14,7 +14,13 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://kind-moss-06ab0cf0f.6.azurestaticapps.net'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 const { verifyToken } = require('./middleware/authMiddleware'); // Import specific middleware
