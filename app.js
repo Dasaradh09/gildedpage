@@ -69,21 +69,33 @@ app.use('/api/users', userRoutes); // Register user routes
 app.use('/api/ai', aiRoutes); // Register AI routes
 
 async function startApolloServer() {
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: async ({ req }) => ({ req }),
-  });
+  try {
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      introspection: true, // Enable introspection for external tools
+      context: async ({ req }) => {
+        return { req };
+      },
+    });
 
-  await server.start();
+    await server.start();
+    console.log('✅ Apollo Server started');
 
-  app.use(
-    '/graphql',
-    express.json(),
-    expressMiddleware(server, {
-      context: async ({ req }) => ({ req }),
-    })
-  );
+    app.use(
+      '/graphql',
+      express.json(),
+      expressMiddleware(server, {
+        context: async ({ req }) => {
+          return { req };
+        },
+      })
+    );
+
+    console.log('🚀 GraphQL endpoint ready at /graphql');
+  } catch (error) {
+    console.error('❌ Failed to start Apollo Server:', error);
+  }
 }
 
 startApolloServer();
