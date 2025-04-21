@@ -6,6 +6,7 @@ const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const typeDefs = require('./graphql/schema');
 const resolvers = require('./graphql/resolvers');
+const { swaggerUi, swaggerSpec } = require('./swagger');
 
 // Load environment variables
 dotenv.config();
@@ -16,19 +17,31 @@ connectDB();
 const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://kind-moss-06ab0cf0f.6.azurestaticapps.net'
+  'https://kind-moss-06ab0cf0f.6.azurestaticapps.net',
+  'https://studio.apollographql.com',
+  'http://localhost:5001'
 ];
 
+// Add before GraphQL and routes
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn(`🔒 Blocked by CORS: ${origin}`);
+      }
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
 }));
+
+// Handle preflight OPTIONS requests manually
+app.options('*', cors());
 app.use(express.json());
 
 const { verifyToken } = require('./middleware/authMiddleware'); // Import specific middleware
@@ -44,13 +57,6 @@ const paymentRoutes = require('./routes/paymentRoutes'); // Import payment route
 const userRoutes = require('./routes/userRoutes'); // Import user routes
 const aiRoutes = require('./routes/aiRoutes'); // Import AI routes
 
-// Debug logs
-console.log('authRoutes:', authRoutes);
-console.log('customerRoutes:', customerRoutes);
-console.log('bookRoutes:', bookRoutes);
-console.log('orderRoutes:', orderRoutes);
-console.log('settingsRoutes:', settingsRoutes);
-console.log('verifyToken:', verifyToken);
 
 // 👇 Public routes
 app.use('/api/auth', authRoutes);
@@ -73,7 +79,8 @@ async function startApolloServer() {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      introspection: true, // Enable introspection for external tools
+      introspection: true, 
+      playground: true,
       context: async ({ req }) => {
         return { req };
       },
@@ -82,15 +89,7 @@ async function startApolloServer() {
     await server.start();
     console.log('✅ Apollo Server started');
 
-    app.use(
-      '/graphql',
-      express.json(),
-      expressMiddleware(server, {
-        context: async ({ req }) => {
-          return { req };
-        },
-      })
-    );
+    app.use('/graphql', express.json(), expressMiddleware(server));
 
     console.log('🚀 GraphQL endpoint ready at /graphql');
   } catch (error) {
@@ -99,9 +98,11 @@ async function startApolloServer() {
 }
 
 startApolloServer();
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = process.env.PORT || 5001;
-
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = app;
