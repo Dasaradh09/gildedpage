@@ -10,7 +10,7 @@ const typeDefs = gql`
     isbn: String
   }
 
-  type Customer {
+  type User {
     _id: ID!
     name: String!
     email: String!
@@ -25,7 +25,7 @@ const typeDefs = gql`
 
   type Order {
     _id: ID!
-    customerId: ID!
+    userId: ID!
     items: [OrderItem!]!
     totalPrice: Float!
     status: String!
@@ -35,8 +35,8 @@ const typeDefs = gql`
   type Query {
     books: [Book]
     book(id: ID!): Book
-    customers: [Customer]
-    customer(id: ID!): Customer
+    users: [User]
+    user(id: ID!): User
     orders: [Order]
     order(id: ID!): Order
   }
@@ -46,9 +46,9 @@ const typeDefs = gql`
     updateBook(id: ID!, stock: Int): Book
     deleteBook(id: ID!): String
 
-    createCustomer(name: String!, email: String!): Customer
+    createUser(name: String!, email: String!): User
 
-    createOrder(customerId: ID!, items: [OrderInput!]!): Order
+    createOrder(userId: ID!, items: [OrderInput!]!): Order
     updateOrderStatus(orderId: ID!, status: String!): Order
   }
 

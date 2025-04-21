@@ -1,5 +1,5 @@
 const Book = require('../models/Book');
-const Customer = require('../models/Customer');
+const User = require('../models/User');
 const Order = require('../models/Order');
 
 const resolvers = {
@@ -8,8 +8,8 @@ const resolvers = {
         return await Book.find();
       },
     book: (_, { id }) => Book.findById(id),
-    customers: () => Customer.find(),
-    customer: (_, { id }) => Customer.findById(id),
+    users: () => User.find(),
+    user: (_, { id }) => User.findById(id),
     orders: () => Order.find(),
     order: (_, { id }) => Order.findById(id),
   },
@@ -28,8 +28,8 @@ const resolvers = {
       return 'Book deleted successfully';
     },
 
-    createCustomer: (_, { name, email }) =>
-      Customer.create({ name, email }),
+    createUser: (_, { name, email }) =>
+      User.create({ name, email }),
 
     createOrder: async (_, { customerId, items }) => {
       let totalPrice = 0;
