@@ -38,7 +38,7 @@ A complete full stack application book marketplace where users can explore, purc
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/book-marketplace.git
+git clone https://github.com/Dasaradh09/gildedpage.git
 cd book-marketplace
 ```
 
