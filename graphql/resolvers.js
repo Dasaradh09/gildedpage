@@ -15,8 +15,14 @@ const resolvers = {
   },
 
   Mutation: {
-    createBook: (_, { title, author, price, stock, isbn }) =>
-      Book.create({ title, author, price, stock, isbn }),
+    createBook: (_, { input }) =>
+      Book.create({
+        title: input.title,
+        author: input.author,
+        price: input.price,
+        stock: input.stock,
+        isbn: input.isbn
+      }),
 
     updateBook: async (_, { id, stock }) => {
       const updated = await Book.findByIdAndUpdate(id, { stock }, { new: true });
@@ -28,10 +34,25 @@ const resolvers = {
       return 'Book deleted successfully';
     },
 
-    createUser: (_, { name, email }) =>
-      User.create({ name, email }),
+    createUser: (_, { input }) =>
+      User.create({ name: input.name, email: input.email }),
 
-    createOrder: async (_, { customerId, items }) => {
+    updateUser: async (_, { id, name, email }) => {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { name, email },
+        { new: true }
+      );
+      return updatedUser;
+    },
+
+    deleteUser: async (_, { id }) => {
+      await User.findByIdAndDelete(id);
+      return 'User deleted successfully';
+    },
+
+    createOrder: async (_, { input }) => {
+      const { customerId, items } = input;
       let totalPrice = 0;
       const orderItems = [];
 
@@ -62,6 +83,11 @@ const resolvers = {
       });
 
       return order;
+    },
+
+    deleteOrder: async (_, { orderId }) => {
+      await Order.findByIdAndDelete(orderId);
+      return 'Order deleted successfully';
     },
 
     updateOrderStatus: async (_, { orderId, status }) => {

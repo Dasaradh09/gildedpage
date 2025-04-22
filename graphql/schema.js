@@ -2,16 +2,29 @@ const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
   type Book {
-    _id: ID!
+    id: ID!
     title: String!
     author: String!
     price: Float!
     stock: Int!
-    isbn: String
+    isbn: String!
+  }
+
+  input BookInput {
+    title: String!
+    author: String!
+    price: Float!
+    stock: Int!
+    isbn: String!
   }
 
   type User {
-    _id: ID!
+    id: ID!
+    name: String!
+    email: String!
+  }
+
+  input UserInput {
     name: String!
     email: String!
   }
@@ -24,37 +37,44 @@ const typeDefs = gql`
   }
 
   type Order {
-    _id: ID!
-    userId: ID!
+    id: ID!
+    customerId: ID!
     items: [OrderItem!]!
     totalPrice: Float!
-    status: String!
-    orderDate: String!
+    status: String
+  }
+
+  input OrderItemInput {
+    bookId: ID!
+    quantity: Int!
+  }
+
+  input OrderInput {
+    customerId: ID!
+    items: [OrderItemInput!]!
   }
 
   type Query {
-    books: [Book]
+    books: [Book!]!
     book(id: ID!): Book
-    users: [User]
+    users: [User!]!
     user(id: ID!): User
-    orders: [Order]
+    orders: [Order!]!
     order(id: ID!): Order
   }
 
   type Mutation {
-    createBook(title: String!, author: String!, price: Float!, stock: Int!, isbn: String): Book
-    updateBook(id: ID!, stock: Int): Book
+    createBook(input: BookInput!): Book
+    updateBook(id: ID!, stock: Int!): Book
     deleteBook(id: ID!): String
 
-    createUser(name: String!, email: String!): User
+    createUser(input: UserInput!): User
+    updateUser(id: ID!, name: String!, email: String!): User
+    deleteUser(id: ID!): String
 
-    createOrder(userId: ID!, items: [OrderInput!]!): Order
+    createOrder(input: OrderInput!): Order
+    deleteOrder(orderId: ID!): String
     updateOrderStatus(orderId: ID!, status: String!): Order
-  }
-
-  input OrderInput {
-    bookId: ID!
-    quantity: Int!
   }
 `;
 
